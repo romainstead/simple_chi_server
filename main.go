@@ -1,7 +1,6 @@
 package main
 
 import (
-	"chi-crud-api/config"
 	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
@@ -23,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	conf := config.NewConfig()
+	conf := NewConfig()
 	// Connection to Postgres DB, generating wallets with random addresses
 	//conn, err := ConnectToDB()
 	conn, err := pgx.Connect(context.Background(), fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
