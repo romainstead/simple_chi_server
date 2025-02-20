@@ -11,7 +11,7 @@ import (
 )
 
 func ConnectToDB() (*pgx.Conn, error) {
-	conn, err := pgx.Connect(context.Background(), "postgres://postgres:iloveSasha5000!@localhost:5433/mydb?sslmode=disable")
+	conn, err := pgx.Connect(context.Background(), "postgres://postgres:12345@localhost:5433/mydb?sslmode=disable")
 	return conn, err
 }
 
