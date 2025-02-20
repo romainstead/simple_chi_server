@@ -1,17 +1,33 @@
 package main
 
 import (
+	"chi-crud-api/config"
 	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5"
+	"github.com/joho/godotenv"
+	"log"
 	"net/http"
 )
 
+func initConfig() {
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
+	}
+}
+
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	conf := config.NewConfig()
 	// Connection to Postgres DB, generating wallets with random addresses
-	conn, err := ConnectToDB()
+	//conn, err := ConnectToDB()
+	conn, err := pgx.Connect(context.Background(), fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		conf.DBConfig.Username, conf.DBConfig.Password, conf.DBConfig.Host, conf.DBConfig.Port, conf.DBConfig.TableName))
 	defer conn.Close(context.Background())
 	//err = GenerateWallets(conn)
 	if err != nil {
