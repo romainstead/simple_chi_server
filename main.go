@@ -18,10 +18,7 @@ func initConfig() {
 }
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	initConfig()
 	conf := NewConfig()
 	// Connection to Postgres DB, generating wallets with random addresses
 	//conn, err := ConnectToDB()
