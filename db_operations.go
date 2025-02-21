@@ -10,16 +10,16 @@ import (
 	"time"
 )
 
-func ConnectToDB() (*pgx.Conn, error) {
-	conn, err := pgx.Connect(context.Background(), "postgres://postgres:12345@localhost:5433/mydb?sslmode=disable")
-	return conn, err
-}
-
+// GenerateWallets функция для генерации кошельков со случайным адресом
 func GenerateWallets(conn *pgx.Conn) error {
+	// Объявим массив кошельков
 	rows := []Wallet{}
+
+	// Создадим 10 кошельков и добавим в rows
 	for i := 0; i < 10; i++ {
 		rows = append(rows, Wallet{uniuri.NewLen(30), 100})
 	}
+	// Вот тут сложно, это я взял с инета
 	_, err := conn.CopyFrom(
 		context.Background(),
 		pgx.Identifier{"wallets"},
@@ -35,11 +35,10 @@ func GenerateWallets(conn *pgx.Conn) error {
 }
 
 func GetBalance(address string, conn *pgx.Conn) (Wallet, error) {
-	// TODO: CHECK IF ADDRESS IS PRESENT IN DB
-	// IF YES, RETURN JSON WITH THAT ADDRESS
-	// IF NO, RETURN ERROR 404
 	row := conn.QueryRow(context.Background(), "SELECT * FROM wallets w WHERE w.wallet_address = $1", address)
 	var wallet Wallet
+
+	// Главный момент - сканирование в поля структуры wallet ПО ССЫЛКЕ
 	err := row.Scan(&wallet.Address, &wallet.Balance)
 	if err != nil {
 		fmt.Printf("couldn't fetch data from db: %v", err)
