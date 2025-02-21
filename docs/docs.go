@@ -58,7 +58,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/transactions/{N}": {
+        "/transactions": {
             "get": {
                 "description": "возвращает JSON Array длиной N объектов Transaction",
                 "produces": [
@@ -72,7 +72,7 @@ const docTemplate = `{
                     {
                         "type": "number",
                         "description": "Количество передаваемых транзакций",
-                        "name": "N",
+                        "name": "count",
                         "in": "query",
                         "required": true
                     }
@@ -131,8 +131,8 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "8080",
-	BasePath:         "/",
+	Host:             "localhost:8080",
+	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "Go-Chi-Swagger-pgx project",
 	Description:      "Пример веб-сервера на Chi с использованием Swagger и работой с БД Postgres",

@@ -1,18 +1,18 @@
 // @title Go-Chi-Swagger-pgx project
 // @version 1.0
 // @description Пример веб-сервера на Chi с использованием Swagger и работой с БД Postgres
-// @host 8080
-// @BasePath /
+// @host localhost:8080
+// @BasePath /api
 package main
 
 import (
+	_ "chi-crud-api/docs"
 	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
-	_ "github.com/romainstead/simple_chi_server/docs"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
@@ -47,6 +47,7 @@ func main() {
 
 	// Launch the server
 	err = http.ListenAndServe(":8080", r)
+	fmt.Println("server is running and listening on port 8080")
 	if err != nil {
 		fmt.Printf("couldn't start server: %v", err)
 	}

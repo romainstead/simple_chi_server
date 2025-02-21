@@ -6,8 +6,8 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "8080",
-    "basePath": "/",
+    "host": "localhost:8080",
+    "basePath": "/api",
     "paths": {
         "/send": {
             "post": {
@@ -52,7 +52,7 @@
                 }
             }
         },
-        "/transactions/{N}": {
+        "/transactions": {
             "get": {
                 "description": "возвращает JSON Array длиной N объектов Transaction",
                 "produces": [
@@ -66,7 +66,7 @@
                     {
                         "type": "number",
                         "description": "Количество передаваемых транзакций",
-                        "name": "N",
+                        "name": "count",
                         "in": "query",
                         "required": true
                     }

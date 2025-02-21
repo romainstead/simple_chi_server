@@ -51,9 +51,9 @@ func (p *PsHandler) GetBalance(w http.ResponseWriter, r *http.Request) {
 // @Description возвращает JSON Array длиной N объектов Transaction
 // @Tags примеры
 // @Produce json
-// @Param N query number true "Количество передаваемых транзакций"
+// @Param count query number true "Количество передаваемых транзакций"
 // @Success 200 {array} map[string]string
-// @Router /transactions/{N} [get]
+// @Router /transactions [get]
 func (p *PsHandler) GetNLast(w http.ResponseWriter, r *http.Request) {
 	count := r.URL.Query().Get("count")
 	n, err := strconv.Atoi(count)
@@ -104,7 +104,17 @@ func (p *PsHandler) Send(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		}
-		err := Send(FromAddress, ToAddress, amount, p.conn)
+		FromWallet, err := GetBalance(FromAddress, p.conn)
+		if err != nil {
+			w.WriteHeader(500)
+			return
+		}
+		if amount > FromWallet.Balance {
+			w.WriteHeader(400)
+			err = json.NewEncoder(w).Encode("amount value must be not greater than sender wallet balance")
+			return
+		}
+		err = Send(FromAddress, ToAddress, amount, p.conn)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(err)

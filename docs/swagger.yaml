@@ -1,5 +1,5 @@
-basePath: /
-host: "8080"
+basePath: /api
+host: localhost:8080
 info:
   contact: {}
   description: Пример веб-сервера на Chi с использованием Swagger и работой с БД Postgres
@@ -36,13 +36,13 @@ paths:
         её к балансу кошелька получателя
       tags:
       - примеры
-  /transactions/{N}:
+  /transactions:
     get:
       description: возвращает JSON Array длиной N объектов Transaction
       parameters:
       - description: Количество передаваемых транзакций
         in: query
-        name: "N"
+        name: count
         required: true
         type: number
       produces:
