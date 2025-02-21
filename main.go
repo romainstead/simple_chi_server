@@ -41,7 +41,7 @@ func main() {
 	// Тут происходит подключение к локальной БД
 	// в переменной conf записаны мои локальные данные из файла .env благодаря NewConfig()
 	conn, err := pgx.Connect(context.Background(), fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		conf.DBConfig.Username, conf.DBConfig.Password, conf.DBConfig.Host, conf.DBConfig.Port, conf.DBConfig.TableName))
+		conf.DBConfig.Username, conf.DBConfig.Password, conf.DBConfig.Host, conf.DBConfig.Port, conf.DBConfig.Name))
 
 	// После завершения main() закрываем соединение с БД
 	defer conn.Close(context.Background())

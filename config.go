@@ -5,11 +5,11 @@ import "os"
 // DBConfig Здесь мы просто указываем структуру DBConfig
 // Здесь перечислены основные данные для соединения к БД
 type DBConfig struct {
-	Username  string
-	Password  string
-	Host      string
-	Port      string
-	TableName string
+	Username string
+	Password string
+	Host     string
+	Port     string
+	Name     string
 }
 
 // Config нужен чтобы хранить в себе подконфиги (по типу конфига баз данных)
@@ -24,11 +24,11 @@ type Config struct {
 func NewConfig() *Config {
 	return &Config{
 		DBConfig: DBConfig{
-			Username:  os.Getenv("DB_USERNAME"),
-			Password:  os.Getenv("DB_PASSWORD"),
-			Host:      os.Getenv("DB_HOST"),
-			Port:      os.Getenv("DB_PORT"),
-			TableName: os.Getenv("DB_TABLE_NAME"),
+			Username: os.Getenv("DB_USERNAME"),
+			Password: os.Getenv("DB_PASSWORD"),
+			Host:     os.Getenv("DB_HOST"),
+			Port:     os.Getenv("DB_PORT"),
+			Name:     os.Getenv("DB_NAME"),
 		},
 	}
 }
