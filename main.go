@@ -1,3 +1,8 @@
+// @title Go-Chi-Swagger-pgx project
+// @version 1.0
+// @description Пример веб-сервера на Chi с использованием Swagger и работой с БД Postgres
+// @host 8080
+// @BasePath /
 package main
 
 import (
@@ -7,6 +12,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
 )
@@ -33,6 +39,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Get("/", Ping)
+	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	// Mount new subrouter
 	r.Mount("/api", psRoutes(conn))
