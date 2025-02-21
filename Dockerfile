@@ -7,14 +7,14 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o chi-crud-api main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o chi-crud-api .
 
 FROM alpine:latest
 
 WORKDIR /app
 
-COPY --from=builder /app/chi-crud-api .
+COPY --from=builder /app/chi-crud-api /app/chi-crud-api
 
 EXPOSE 8080
 
-CMD ["./chid-crud-api"]
+CMD ["./chi-crud-api"]

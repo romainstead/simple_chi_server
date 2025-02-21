@@ -15,6 +15,12 @@ type PsHandler struct {
 	conn *pgx.Conn
 }
 
+// newPsHandler Функция, принимающая на вход соединение к БД
+// Возвращает тип PsHandler с соединением к БД
+func newPsHandler(conn *pgx.Conn) *PsHandler {
+	return &PsHandler{conn: conn}
+}
+
 // GetBalance возвращает баланс кошелька по адресу
 // @Summary возврат баланс кошелька по заданному адресу
 // @Description возвращает JSON с адресом и балансом кошелька
@@ -24,21 +30,17 @@ type PsHandler struct {
 // @Success 200 {object} map[string]string
 // @Router /wallet/{address}/balance [get]
 func (p *PsHandler) GetBalance(w http.ResponseWriter, r *http.Request) {
-	// Обрати внимание, что это не функция, а метод класса PsHandler. Почему?
+	// IF ADDRESS IS PRESENT IN DB
 	address := chi.URLParam(r, "address")
-
-	// Проверяем наличие кошелька по адресу
 	wallet, _ := GetBalance(address, p.conn)
 
-	// Кодируем в JSON и отправляем
+	// ENCODE TO JSON AND SEND
 	if wallet.Address != "" {
 		err := json.NewEncoder(w).Encode(wallet)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
-
-	// Если не нашли такой адрес, то иди нах типо
 	if wallet.Address == "" {
 		err := json.NewEncoder(w).Encode(http.StatusNotFound)
 		if err != nil {
