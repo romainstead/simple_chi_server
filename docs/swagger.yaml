@@ -1,0 +1,83 @@
+basePath: /
+host: "8080"
+info:
+  contact: {}
+  description: Пример веб-сервера на Chi с использованием Swagger и работой с БД Postgres
+  title: Go-Chi-Swagger-pgx project
+  version: "1.0"
+paths:
+  /send:
+    post:
+      description: взаимодействует с БД через UPDATE, INSERT, BEGIN TRANSACTION
+      parameters:
+      - description: Адрес получателя
+        in: query
+        name: to
+        required: true
+        type: string
+      - description: Адрес отправителя
+        in: query
+        name: from
+        required: true
+        type: string
+      - description: Сумма для отправки
+        in: query
+        name: amount
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      summary: снимает с баланса кошелька отправителя заданную сумму и прибавляет
+        её к балансу кошелька получателя
+      tags:
+      - примеры
+  /transactions/{N}:
+    get:
+      description: возвращает JSON Array длиной N объектов Transaction
+      parameters:
+      - description: Количество передаваемых транзакций
+        in: query
+        name: "N"
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties:
+                type: string
+              type: object
+            type: array
+      summary: показ N последних транзакций
+      tags:
+      - примеры
+  /wallet/{address}/balance:
+    get:
+      description: возвращает JSON с адресом и балансом кошелька
+      parameters:
+      - description: Адрес кошелька
+        in: path
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: возврат баланс кошелька по заданному адресу
+      tags:
+      - примеры
+swagger: "2.0"

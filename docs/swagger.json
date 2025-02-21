@@ -1,0 +1,123 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Пример веб-сервера на Chi с использованием Swagger и работой с БД Postgres",
+        "title": "Go-Chi-Swagger-pgx project",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "8080",
+    "basePath": "/",
+    "paths": {
+        "/send": {
+            "post": {
+                "description": "взаимодействует с БД через UPDATE, INSERT, BEGIN TRANSACTION",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "примеры"
+                ],
+                "summary": "снимает с баланса кошелька отправителя заданную сумму и прибавляет её к балансу кошелька получателя",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Адрес получателя",
+                        "name": "to",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Адрес отправителя",
+                        "name": "from",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Сумма для отправки",
+                        "name": "amount",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/transactions/{N}": {
+            "get": {
+                "description": "возвращает JSON Array длиной N объектов Transaction",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "примеры"
+                ],
+                "summary": "показ N последних транзакций",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Количество передаваемых транзакций",
+                        "name": "N",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/wallet/{address}/balance": {
+            "get": {
+                "description": "возвращает JSON с адресом и балансом кошелька",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "примеры"
+                ],
+                "summary": "возврат баланс кошелька по заданному адресу",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Адрес кошелька",
+                        "name": "address",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
