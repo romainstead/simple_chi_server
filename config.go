@@ -1,6 +1,8 @@
 package main
 
-import "os"
+import (
+	"os"
+)
 
 // DBConfig Здесь мы просто указываем структуру DBConfig
 // Здесь перечислены основные данные для соединения к БД
@@ -26,8 +28,6 @@ func NewConfig() *Config {
 		DBConfig: DBConfig{
 			Username: os.Getenv("DB_USERNAME"),
 			Password: os.Getenv("DB_PASSWORD"),
-			Host:     os.Getenv("DB_HOST"),
-			Port:     os.Getenv("DB_PORT"),
 			Name:     os.Getenv("DB_NAME"),
 		},
 	}

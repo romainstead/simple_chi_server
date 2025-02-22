@@ -1,118 +1,42 @@
 package main
 
 import (
-	"context"
-	"errors"
-	"fmt"
 	"github.com/dchest/uniuri"
-	"github.com/jackc/pgx/v5"
-	"log"
-	"time"
+	"gorm.io/gorm"
 )
 
-// GenerateWallets функция для генерации кошельков со случайным адресом
-func GenerateWallets(conn *pgx.Conn) error {
-	// Объявим массив кошельков
-	rows := []Wallet{}
+type DbConnection struct {
+	database *gorm.DB
+}
 
-	// Создадим 10 кошельков и добавим в rows
+func GenerateWallets(db *gorm.DB) error {
+	var rows []*Wallet
 	for i := 0; i < 10; i++ {
-		rows = append(rows, Wallet{uniuri.NewLen(30), 100})
+		rows = append(rows, &Wallet{uniuri.NewLen(30), 1000})
 	}
-	// Вот тут сложно, это я взял с инета
-	_, err := conn.CopyFrom(
-		context.Background(),
-		pgx.Identifier{"wallets"},
-		[]string{"wallet_address", "balance"},
-		pgx.CopyFromSlice(len(rows), func(i int) ([]any, error) {
-			return []any{rows[i].Address, rows[i].Balance}, nil
-		}),
-	)
-	if err != nil {
-		return fmt.Errorf("couldn't generate wallets: %v", err)
+	result := db.Create(rows)
+	if result.Error != nil {
+		return result.Error
 	}
 	return nil
 }
 
-func GetBalance(address string, conn *pgx.Conn) (Wallet, error) {
-	row := conn.QueryRow(context.Background(), "SELECT * FROM wallets w WHERE w.wallet_address = $1", address)
-	var wallet Wallet
-
-	// Главный момент - сканирование в поля структуры wallet ПО ССЫЛКЕ
-	err := row.Scan(&wallet.Address, &wallet.Balance)
-	if err != nil {
-		fmt.Printf("couldn't fetch data from db: %v", err)
+func GetWallet(address string, db *gorm.DB) (Wallet, error) {
+	WalToFind := Wallet{address, 0}
+	wal := db.First(&WalToFind, "wallet_address = ?", address)
+	if wal.Error != nil {
+		return Wallet{"", 0}, wal.Error
 	}
-	return wallet, nil
+	return WalToFind, nil
 }
 
-func GetNLast(n int, conn *pgx.Conn) ([]Transaction, error) {
-	rows, err := conn.Query(context.Background(), "SELECT * FROM transactions ORDER BY time DESC FETCH FIRST $1 ROWS ONLY", n)
-	if err != nil {
-		log.Fatalf("couldn't fetch data from db: %v", err)
+func GetNLast(n int, db *gorm.DB) ([]*Transaction, error) {
+	var rows []*Transaction
+	db.Order("time desc").Limit(n).Find(&rows)
+	if db.Error != nil {
+		return nil, db.Error
 	}
-	defer rows.Close()
-	var transactions []Transaction
-	for rows.Next() {
-		var t Transaction
-		err = rows.Scan(&t.ToAddress, &t.FromAddress, &t.Amount, &t.Id, &t.Time)
-		if err != nil {
-			log.Fatalf("couldn't parse data: %v", err)
-		}
-		transactions = append(transactions, t)
-	}
-	return transactions, nil
+	return rows, nil
 }
 
-func Send(FromAddress string, ToAddress string, Amount float64, conn *pgx.Conn) error {
-	fromWallet, err := GetBalance(FromAddress, conn)
-	toWallet, err := GetBalance(ToAddress, conn)
-	fmt.Println(fromWallet.Address+": ", fromWallet.Balance)
-	fmt.Println(toWallet.Address+": ", toWallet.Balance)
-	if err != nil {
-		log.Fatalf("couldn't read balance from sender wallet: %v", err)
-		return err
-	}
-	if fromWallet.Balance == 0 || fromWallet.Balance < 0 {
-		return errors.New("balance is zero or negative")
-	}
-
-	if fromWallet.Balance-Amount < 0 {
-		return errors.New("sender wallet has insufficient funds")
-	}
-
-	if fromWallet.Address == "" {
-		return errors.New("sender wallet address does not exist")
-	}
-
-	if toWallet.Address == "" {
-		return errors.New("recipient wallet address does not exist")
-	}
-	tx, err := conn.Begin(context.Background())
-	defer tx.Rollback(context.Background())
-	if err != nil {
-		return errors.New("database server error")
-	}
-	tag, err := tx.Exec(context.Background(),
-		"UPDATE wallets SET balance = balance - $1 WHERE wallet_address = $2", Amount, fromWallet.Address)
-	if tag.RowsAffected() == 0 {
-		return errors.New("cant find sender wallet")
-	}
-	tag, err = tx.Exec(context.Background(),
-		"UPDATE wallets SET balance = balance + $1 WHERE wallet_address = $2", Amount, toWallet.Address)
-	if err != nil {
-		return errors.New("cant find recipient wallet")
-	}
-	tag, err = tx.Exec(context.Background(),
-		"INSERT INTO transactions(to_address, from_address, amount, time) VALUES ($1, $2, $3, $4)", ToAddress, FromAddress, Amount, time.Now())
-
-	if err != nil {
-		return errors.New("couldn't insert into 'transactions'")
-	}
-
-	err = tx.Commit(context.Background())
-	if err != nil {
-		return errors.New("database server error")
-	}
-	return err
-}
+func Send(FromAddress string, ToAddress string, Amount float64) {}
